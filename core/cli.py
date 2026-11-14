@@ -82,8 +82,9 @@ def cmd_run(args):
 
         if not args.yes:
             if not sys.stdin.isatty():
-                print(f"[Non-interactive session: auto-confirming publish for draft #{draft_id}]")
-                args.yes = True
+                raise SystemExit(
+                    "Error: Non-interactive session detected. Live publishing requires explicit '--yes' / '-y' flag."
+                )
             else:
                 answer = input(f"\nPublish draft #{draft_id} for {repo} {target_str} in {mode} mode? Type yes: ")
                 if answer.strip().lower() != "yes":
@@ -123,8 +124,9 @@ def cmd_send(args):
     
     if not args.yes:
         if not sys.stdin.isatty():
-            print(f"[Non-interactive session: auto-confirming send for draft #{args.draft_id}]")
-            args.yes = True
+            raise SystemExit(
+                "Error: Non-interactive session detected. Sending drafts requires explicit '--yes' / '-y' flag."
+            )
         else:
             answer = input(f"Send draft #{args.draft_id} for {row['repo']} {target_str} in {mode} mode? Type yes: ")
             if answer.strip().lower() != "yes":

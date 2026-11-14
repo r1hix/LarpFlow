@@ -104,6 +104,9 @@ larpflow doctor
 - **`config/persona.json`**: Copy `config/persona.example.json` to `config/persona.json`. List your actual technical stack, handles, and banned phrases.
 - **`config/linkedin_profile.md`**: Copy `config/linkedin_profile.example.md` to `config/linkedin_profile.md`. Paste your headline, about section, and experience so the LLM writes in your genuine voice.
 
+> [!NOTE]
+> `config/persona.json` and `config/linkedin_profile.md` are ignored by git to protect your privacy and prevent accidental identity leaks.
+
 ---
 
 ## 🛠️ CLI Usage
@@ -141,13 +144,13 @@ larpflow run <repo_name> -p x
 
 ### 3. 1-Step Fast-Path (Generate & Publish)
 
-Generates the drafts and immediately dispatches to your target platforms:
+Generates the drafts and immediately dispatches to your target platforms (`--yes` is required in non-interactive sessions or CI):
 
 ```bash
 larpflow run <repo_name> --publish -p linkedin,discord --yes
 ```
 
-### 3. Custom Narrative Types & Context
+### 4. Custom Narrative Types & Context
 
 ```bash
 larpflow run <repo_name> \

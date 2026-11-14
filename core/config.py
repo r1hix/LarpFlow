@@ -105,4 +105,3 @@ def load_linkedin_profile():
         line for line in text.splitlines() if line.strip() and not line.startswith("#")
     )
     return text.strip() if body.strip() else ""
-    return text.strip() if body.strip() else ""
