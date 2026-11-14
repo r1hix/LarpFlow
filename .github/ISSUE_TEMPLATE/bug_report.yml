@@ -1,0 +1,37 @@
+name: Bug Report
+description: Report a bug, crash, or unexpected behavior in LarpFlow
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what happened.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Provide the command or reproduction steps.
+      placeholder: |
+        1. larpflow run my-repo -p x
+        2. Hit error ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Info
+      description: Output of `larpflow doctor` and Python/OS version.
+      placeholder: |
+        - OS: macOS / Linux / Windows
+        - Python version: 3.11.x
+        - LLM Provider: Gemini / OpenAI
+    validations:
+      required: true
