@@ -1,7 +1,7 @@
 """Agent 3 (the gatekeeper): shows drafts in Telegram with buttons."""
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from core import drafts as draft_lib
+from larpflow.core import drafts as draft_lib
 
 
 def keyboard(draft_id):

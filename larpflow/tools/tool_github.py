@@ -1,7 +1,7 @@
 """Agent 1 (the ingestor): reads repos from GitHub."""
 from github import Auth, Github, GithubException
 
-from core import config
+from larpflow.core import config
 
 
 def _gh():

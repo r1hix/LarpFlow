@@ -2,7 +2,7 @@
 from pathlib import Path
 import tweepy
 
-from core import config
+from larpflow.core import config
 
 
 def configured():

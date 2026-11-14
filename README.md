@@ -233,7 +233,7 @@ If you prefer approving drafts from your phone via Telegram inline buttons:
 1. Create a bot with `@BotFather` and paste the token in `TELEGRAM_BOT_TOKEN`.
 2. Start the orchestrator:
    ```bash
-   python -m core.agent_orchestrator
+   python -m larpflow.core.agent_orchestrator
    ```
 3. Send `/whoami` to your bot in Telegram, copy your user ID into `TELEGRAM_OWNER_ID` in `.env`, and restart.
 4. Send `/run repo | problem | solution` in Telegram. Tap **Approve All**, **Edit Twitter**, or **Reject**.
@@ -248,20 +248,27 @@ larpflow/
 │   ├── system_instructions.md    # LLM styling and anti-slop rules
 │   ├── persona.example.json      # Template for developer facts & tone guardrails
 │   └── linkedin_profile.example.md # Template for genuine LinkedIn voice
-├── core/
-│   ├── cli.py                    # Terminal CLI (run, send, show, repos, history)
-│   ├── pipeline.py               # Ingest -> Draft -> Dispatch engine
-│   ├── drafts.py                 # Multi-platform prompt crafting & rule validation
-│   ├── llm.py                    # OpenAI/Gemini wrapper with fallback & timeouts
-│   ├── config.py                 # Configuration loader & auto-detection
-│   └── db.py                     # SQLite history storage
-├── tools/
-│   ├── tool_github.py            # GitHub API repo & commit diff extractor
-│   ├── tool_x.py                 # X/Twitter v2 thread publisher + media upload
-│   ├── tool_linkedin.py          # LinkedIn Posts & v2 UGC image uploader
-│   ├── tool_reddit.py            # Reddit PRAW poster with flair auto-matching
-│   ├── tool_discord.py           # Discord webhook rich embed publisher
-│   └── tool_facebook.py          # Facebook Pages Graph API publisher
+├── larpflow/
+│   ├── __init__.py               # Package metadata and version
+│   ├── config/                   # Bundled package resource templates
+│   ├── core/
+│   │   ├── cli.py                # Terminal CLI (run, send, show, repos, history)
+│   │   ├── pipeline.py           # Ingest -> Draft -> Dispatch engine
+│   │   ├── drafts.py             # Multi-platform prompt crafting & rule validation
+│   │   ├── llm.py                # OpenAI/Gemini wrapper with fallback & timeouts
+│   │   ├── config.py             # Portable XDG & Windows config/storage resolution
+│   │   ├── db.py                 # SQLite history storage
+│   │   └── agent_orchestrator.py # Telegram approval bot
+│   └── tools/
+│       ├── tool_git.py           # Zero-latency local git repo inspection
+│       ├── tool_github.py        # GitHub API repo & commit diff extractor
+│       ├── tool_x.py             # X/Twitter v2 thread publisher + media upload
+│       ├── tool_linkedin.py      # LinkedIn Posts & v2 UGC image uploader
+│       ├── tool_reddit.py        # Reddit PRAW poster with flair auto-matching
+│       ├── tool_discord.py       # Discord webhook rich embed publisher
+│       ├── tool_facebook.py      # Facebook Pages Graph API publisher
+│       ├── tool_telegram.py      # Telegram interactive keyboard handler
+│       └── auth_linkedin.py      # Local OAuth server for LinkedIn token exchange
 ├── skills/
 │   └── larp/SKILL.md             # Antigravity & Agent skill definition
 ├── storage/                      # SQLite database & rendered markdown drafts

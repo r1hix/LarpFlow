@@ -9,7 +9,7 @@ from telegram import Update
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
 
 from . import config, db, drafts, pipeline
-from tools import tool_github, tool_telegram
+from larpflow.tools import tool_github, tool_telegram
 
 logging.basicConfig(format="%(asctime)s %(levelname)s %(message)s", level=logging.INFO)
 log = logging.getLogger("larpflow")

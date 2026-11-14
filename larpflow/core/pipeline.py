@@ -1,6 +1,6 @@
 """The flow: ingest -> draft -> (human approves) -> dispatch. Used by the bot and the CLI."""
 from . import config, db, drafts
-from tools import tool_discord, tool_facebook, tool_git, tool_github, tool_linkedin, tool_reddit, tool_x
+from larpflow.tools import tool_discord, tool_facebook, tool_git, tool_github, tool_linkedin, tool_reddit, tool_x
 
 
 
