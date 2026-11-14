@@ -54,7 +54,10 @@ def post_thread(tweets, media_path=None):
                 raise RuntimeError(
                     f"X API access limit reached (403 Forbidden: {e}). Free tier monthly tweet cap reached."
                 ) from e
-            raise RuntimeError(f"thread broke after {len(ids)} tweet(s) (ids so far: {ids}): {e}") from e
+            urls = [thread_url(tid) for tid in ids]
+            raise RuntimeError(
+                f"Thread interrupted after {len(ids)} tweet(s). Successfully published so far: {urls}. Error: {e}"
+            ) from e
         reply_to = str(resp.data["id"])
         ids.append(reply_to)
     return ids

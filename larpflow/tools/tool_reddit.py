@@ -45,6 +45,16 @@ def post(subreddit, title, body, flair_text=None):
     if flair_id:
         kwargs["flair_id"] = flair_id
 
-    submission = sub.submit(**kwargs)
-    return submission.id, f"https://www.reddit.com{submission.permalink}"
+    try:
+        submission = sub.submit(**kwargs)
+        return submission.id, f"https://www.reddit.com{submission.permalink}"
+    except Exception as e:
+        err_msg = str(e)
+        if "INVALID_GRANT" in err_msg or "401" in err_msg or "OAuthException" in type(e).__name__:
+            raise RuntimeError(
+                f"Reddit authentication failed: {e}. "
+                "If your Reddit account has 2-Factor Authentication (2FA) enabled, "
+                "set REDDIT_PASSWORD to '<password>:<2FA_code>'."
+            ) from e
+        raise
 

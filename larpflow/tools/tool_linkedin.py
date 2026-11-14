@@ -36,6 +36,7 @@ def _upload_image_v2(image_path):
             timeout=30,
         )
         if reg_resp.status_code not in (200, 201):
+            print(f"[Warning] LinkedIn registerUpload failed ({reg_resp.status_code}): {reg_resp.text[:200]}")
             return None
         val = reg_resp.json().get("value", {})
         upload_url = (
@@ -51,10 +52,12 @@ def _upload_image_v2(image_path):
             up_headers = {"Authorization": f"Bearer {config.LINKEDIN_ACCESS_TOKEN}"}
             up_resp = requests.put(upload_url, data=f, headers=up_headers, timeout=60)
             if up_resp.status_code not in (200, 201):
+                print(f"[Warning] LinkedIn media upload PUT failed ({up_resp.status_code}): {up_resp.text[:200]}")
                 return None
 
         return asset_urn
-    except Exception:
+    except Exception as e:
+        print(f"[Warning] LinkedIn image upload failed for '{image_path}': {e}")
         return None
 
 
