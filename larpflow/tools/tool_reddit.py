@@ -1,7 +1,7 @@
 """Reddit posting with PRAW."""
 import praw
 
-from core import config
+from larpflow.core import config
 
 
 def configured():

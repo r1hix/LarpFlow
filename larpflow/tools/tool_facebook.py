@@ -1,7 +1,7 @@
 """Facebook posting via Graph API."""
 import requests
 
-from core import config
+from larpflow.core import config
 
 
 def configured():
