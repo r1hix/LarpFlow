@@ -1,0 +1,23 @@
+name: Feature Request
+description: Suggest an idea or new syndication platform for LarpFlow
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a feature or platform integration request? Let us know!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: What problem are you trying to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution or platform integration.
+    validations:
+      required: true
