@@ -69,8 +69,16 @@ def cmd_run(args):
 
     if not getattr(args, "no_open", False) and sys.stdin.isatty():
         try:
+            import os
+            import platform
             import subprocess
-            subprocess.run(["open", str(draft_file)], check=False)
+            system = platform.system()
+            if system == "Darwin":
+                subprocess.run(["open", str(draft_file)], check=False)
+            elif system == "Windows":
+                os.startfile(str(draft_file))
+            else:
+                subprocess.run(["xdg-open", str(draft_file)], check=False)
             print(f"Opened {draft_file.name} in your editor.")
         except Exception:
             pass

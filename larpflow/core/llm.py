@@ -1,6 +1,8 @@
-"""Tiny wrapper around an OpenAI-compatible API (OpenAI, Gemini, and so on)."""
+"""Tiny wrapper around an OpenAI-compatible API (OpenAI, Gemini, Ollama, and others)."""
 import json
+import os
 import re
+import time
 
 from openai import OpenAI
 
@@ -19,20 +21,37 @@ def _client():
     return OpenAI(**kwargs)
 
 
-import time
+def get_fallback_models():
+    """Returns sensible fallback models tailored to the active LLM provider."""
+    # 1. Explicit user override via environment variable
+    custom = config.env("LLM_FALLBACK_MODELS")
+    if custom:
+        return [m.strip() for m in custom.split(",") if m.strip()]
 
-FALLBACK_MODELS = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.6-flash",
-    "gemini-3.5-flash",
-    "gemini-flash-latest",
-]
+    base_url = (config.LLM_BASE_URL or "").lower()
+    model = (config.LLM_MODEL or "").lower()
+
+    # 2. Google Gemini via OpenAI compatibility endpoint
+    if "googleapis.com" in base_url or "generativelanguage" in base_url or "gemini" in model:
+        return [
+            "gemini-3.8-flash",
+            "gemini-3.7-flash",
+            "gemini-2.5-flash",
+            "gemini-flash-latest",
+        ]
+
+    # 3. OpenAI official API
+    if not base_url or "api.openai.com" in base_url or model.startswith("gpt-"):
+        return ["gpt-4o-mini", "gpt-4o"]
+
+    # 4. Custom / Local / OpenRouter / Groq / vLLM: retry user model only without assuming third-party names
+    return []
 
 
 def chat(system, user, json_mode=False, temperature=0.7):
     client = _client()
-    models_to_try = [config.LLM_MODEL] + [m for m in FALLBACK_MODELS if m != config.LLM_MODEL]
+    fallbacks = get_fallback_models()
+    models_to_try = [config.LLM_MODEL] + [m for m in fallbacks if m != config.LLM_MODEL]
     last_err: Exception | None = None
 
     for model in models_to_try:
@@ -76,11 +95,17 @@ def chat(system, user, json_mode=False, temperature=0.7):
     raise RuntimeError("All LLM attempts failed without an exception.")
 
 
-
 def parse_json(raw):
-    """Finds the JSON object in the answer, even if the model wrapped it in ``` fences."""
-    raw = re.sub(r"^```(?:json)?|```$", "", raw.strip(), flags=re.MULTILINE).strip()
-    start, end = raw.find("{"), raw.rfind("}")
-    if start == -1 or end == -1:
-        raise ValueError("no JSON object found in the model answer")
-    return json.loads(raw[start : end + 1])
+    """Finds and parses the JSON object in the LLM answer, handling markdown fences and extraneous text."""
+    clean = raw.strip()
+    match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", clean, re.DOTALL)
+    if match:
+        clean = match.group(1).strip()
+    else:
+        start = clean.find("{")
+        end = clean.rfind("}")
+        if start != -1 and end != -1:
+            clean = clean[start : end + 1]
+        else:
+            raise ValueError(f"No JSON object found in model response: {raw[:200]}")
+    return json.loads(clean)

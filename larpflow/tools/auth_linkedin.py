@@ -7,7 +7,9 @@ import urllib.parse
 import webbrowser
 import requests
 
-PORT = 8080
+import os
+
+PORT = int(os.getenv("LINKEDIN_AUTH_PORT", "8080"))
 REDIRECT_URI = f"http://localhost:{PORT}/callback"
 
 code_received = None
