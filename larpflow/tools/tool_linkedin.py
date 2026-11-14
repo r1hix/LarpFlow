@@ -1,5 +1,6 @@
 """LinkedIn posting (REST Posts API with fallback and image upload)."""
 from pathlib import Path
+
 import requests
 
 from larpflow.core import config

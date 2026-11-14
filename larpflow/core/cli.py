@@ -129,7 +129,7 @@ def cmd_send(args):
     platforms = [p.strip() for p in args.platforms.split(",")] if args.platforms else None
     target_str = f"to {args.platforms}" if args.platforms else "to all platforms"
     media = args.image or ""
-    
+
     if not args.yes:
         if not sys.stdin.isatty():
             raise SystemExit(
@@ -163,7 +163,7 @@ def main():
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("doctor", help="show which keys are filled in").set_defaults(fn=cmd_doctor)
     sub.add_parser("repos", help="list your GitHub repos").set_defaults(fn=cmd_repos)
-    
+
     run = sub.add_parser("run", help="make drafts for a repo")
     run.add_argument("text", help='repo name or "repo | problem | solution"')
     run.add_argument("--commits", "-c", type=int, default=10, help="number of recent commits to inspect (default 10)")
@@ -184,7 +184,7 @@ def main():
     run.set_defaults(fn=cmd_run)
 
 
-    
+
     show = sub.add_parser("show", help="preview an existing draft by id")
     show.add_argument("draft_id", type=int)
     show.set_defaults(fn=cmd_show)
@@ -196,7 +196,7 @@ def main():
     send.add_argument("--yes", "-y", action="store_true", help="skip confirmation prompt")
     send.set_defaults(fn=cmd_send)
 
-    
+
     sub.add_parser("history", help="show past drafts").set_defaults(fn=cmd_history)
     sub.add_parser("readme", help="make a new GitHub profile README").set_defaults(fn=cmd_readme)
     args = parser.parse_args()

@@ -1,7 +1,7 @@
 """Local Git repository inspection for zero-latency, offline, and private repository ingestion."""
-from pathlib import Path
 import re
 import subprocess
+from pathlib import Path
 
 
 def _run_git(args, cwd):

@@ -42,3 +42,11 @@ include = ["larpflow*"]
 
 [tool.setuptools.package-data]
 larpflow = ["config/*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501", "E402"]

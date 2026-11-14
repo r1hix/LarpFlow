@@ -1,5 +1,4 @@
 """Unit tests for local Git repository inspection and path resolution."""
-from pathlib import Path
 from larpflow.tools import tool_git
 
 

@@ -1,13 +1,12 @@
 """Helper script to authorize LinkedIn via a local OAuth callback server."""
 import http.server
-import json
+import os
 import secrets
 import sys
 import urllib.parse
 import webbrowser
-import requests
 
-import os
+import requests
 
 PORT = int(os.getenv("LINKEDIN_AUTH_PORT", "8080"))
 REDIRECT_URI = f"http://localhost:{PORT}/callback"
@@ -95,7 +94,7 @@ def main():
     print("\nFetching your LinkedIn profile info (Person URN)...")
     headers = {"Authorization": f"Bearer {access_token}"}
     userinfo_resp = requests.get("https://api.linkedin.com/v2/userinfo", headers=headers, timeout=30)
-    
+
     person_urn = ""
     if userinfo_resp.status_code == 200:
         sub = userinfo_resp.json().get("sub")

@@ -1,6 +1,5 @@
 """Tiny wrapper around an OpenAI-compatible API (OpenAI, Gemini, Ollama, and others)."""
 import json
-import os
 import re
 import time
 

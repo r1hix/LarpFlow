@@ -3,7 +3,6 @@ import json
 import os
 import platform
 import re
-import sys
 from pathlib import Path
 
 from dotenv import load_dotenv

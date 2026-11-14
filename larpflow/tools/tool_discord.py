@@ -1,6 +1,7 @@
 """Discord webhook dev-log (rich embed)."""
 import json
 from pathlib import Path
+
 import requests
 
 from larpflow.core import config
@@ -13,7 +14,7 @@ def configured():
 def post(title, body, url, media_path=None):
     """Sends an embed with optional image. Returns (message_id, "")."""
     payload = {"embeds": [{"title": title[:256], "description": body[:4000], "url": url, "color": 0x5865F2}]}
-    
+
     paths = []
     if media_path:
         raw_paths = media_path if isinstance(media_path, list) else [p.strip() for p in str(media_path).split(",") if p.strip()]
