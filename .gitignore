@@ -6,6 +6,10 @@
 *.key
 *.pem
 
+# User Persona & Profile (NEVER COMMIT)
+config/persona.json
+config/linkedin_profile.md
+
 
 # Python & Virtual Environments
 venv/
