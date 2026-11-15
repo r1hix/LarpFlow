@@ -12,7 +12,7 @@ LarpFlow inspects your real GitHub repositories (commits, diffs, closed issues, 
 **Nothing is posted until you approve it.**
 
 ```
-       CLI / Antigravity Agent / Telegram
+   Desktop GUI (Rust) / CLI / Antigravity Agent / Telegram
                        │
                        ▼
  ┌───────────────────────────────────────────┐
@@ -47,6 +47,7 @@ LarpFlow inspects your real GitHub repositories (commits, diffs, closed issues, 
 
 ## 🚀 Key Features
 
+- **Native Desktop Studio (Rust + egui):** Zero-latency visual frontend written in pure Rust. Ingest local git repos with native folder pickers, preview platform posts with real-time word/character count gauges, edit drafts, and dispatch with human gatekeeping.
 - **Local Git Ingestion (Zero-Latency & Offline):** Ingest directly from local repositories (`larpflow run .` or `/path/to/repo`). Extracts diffs, commits, and file trees in $<50\text{ms}$ with zero network requests or GitHub tokens required.
 - **Selective / Targeted Drafting:** Pass `-p` / `--platforms` to generate drafts *only* for the platforms you care about (e.g. `larpflow run . -p linkedin,discord`). Cuts token usage by 60% and avoids unnecessary rule retries for skipped channels.
 - **Modular Per-Platform Retries:** When a draft rule fails (e.g. LinkedIn word count is slightly off), LarpFlow preserves all successful channels and surgically requests an LLM fix *only* for the failing platform. Retries are 80% faster and never degrade good drafts.
@@ -106,6 +107,29 @@ larpflow doctor
 
 > [!NOTE]
 > `config/persona.json` and `config/linkedin_profile.md` are ignored by git to protect your privacy and prevent accidental identity leaks.
+
+---
+
+## 🖥️ Desktop GUI (Rust Studio)
+
+LarpFlow includes a high-performance native desktop GUI written in pure Rust (`eframe` / `egui`).
+
+```bash
+cd gui
+cargo run
+```
+
+Or from the root directory:
+```bash
+cargo run --manifest-path gui/Cargo.toml
+```
+
+- **🚀 Generator View:** Local git repository browser with native directory selection (`rfd`), commit depth slider, focus mode selector, media attachments, and platform routing.
+- **📝 Review & Gatekeeper:** Platform-specific tabs for LinkedIn ($140-350$ words meter), X Thread ($\le 275$ chars tracker), Reddit Markdown, Discord, Facebook, and GitHub README with live editing.
+- **📜 History Explorer:** Zero-latency direct reading from `storage/history.sqlite` with instant search and 1-click reloading into the review gate.
+- **⚙ Health Doctor:** Real-time visual diagnostics for API keys, models, and social platform configurations.
+
+> For in-depth architectural details, see the [GUI Architecture Specification](docs/GUI_ARCHITECTURE.md) and the [Rust GUI Developer Guide](docs/RUST_GUI_GUIDE.md).
 
 ---
 

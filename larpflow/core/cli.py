@@ -7,6 +7,7 @@ python -m core.cli history
 python -m core.cli readme
 """
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -19,7 +20,26 @@ from larpflow.core import config, db, drafts, pipeline
 from larpflow.tools import tool_discord, tool_facebook, tool_github, tool_linkedin, tool_reddit, tool_x
 
 
-def cmd_doctor(_args):
+def cmd_doctor(args):
+    if getattr(args, "json", False):
+        report = {
+            "dry_run": config.DRY_RUN,
+            "llm_api_key": bool(config.LLM_API_KEY),
+            "llm_model": config.LLM_MODEL,
+            "github_token": bool(config.GITHUB_TOKEN),
+            "telegram_bot_token": bool(config.TELEGRAM_BOT_TOKEN),
+            "telegram_owner_id": bool(config.TELEGRAM_OWNER_ID),
+            "x": tool_x.configured(),
+            "reddit": tool_reddit.configured(),
+            "reddit_allowed_subs": config.REDDIT_ALLOWED_SUBS,
+            "linkedin": tool_linkedin.configured(),
+            "facebook": tool_facebook.configured(),
+            "discord": tool_discord.configured(),
+            "linkedin_profile": bool(config.load_linkedin_profile()),
+        }
+        print(json.dumps(report))
+        return
+
     def mark(ok):
         return "ok     " if ok else "MISSING"
 
@@ -45,9 +65,11 @@ def cmd_run(args):
     solution = args.solution or raw_sol
     media = args.image or ""
 
+    as_json = getattr(args, "json", False)
     target_plats = args.platforms or None
     plat_desc = f", platforms='{args.platforms}'" if args.platforms else ""
-    print(f"Working... (inspecting '{repo}' with {args.commits} commits, type='{args.type}'{plat_desc})...")
+    if not as_json:
+        print(f"Working... (inspecting '{repo}' with {args.commits} commits, type='{args.type}'{plat_desc})...")
     draft_id, info, d = pipeline.make_drafts(
         repo,
         problem=problem,
@@ -58,16 +80,18 @@ def cmd_run(args):
         platforms=target_plats,
     )
     preview_text = drafts.render_preview(draft_id, info["full_name"], d, platforms=target_plats)
-    print(preview_text)
+    if not as_json:
+        print(preview_text)
 
     # Auto-export draft as an editable Markdown file and open it in the editor
     draft_dir = config.STORAGE_DIR / "drafts"
     draft_dir.mkdir(parents=True, exist_ok=True)
     draft_file = draft_dir / f"draft_{draft_id}_{repo.replace('/', '_')}.md"
     draft_file.write_text(preview_text, encoding="utf-8")
-    print(f"\nSaved draft to {draft_file}")
+    if not as_json:
+        print(f"\nSaved draft to {draft_file}")
 
-    if not getattr(args, "no_open", False) and sys.stdin.isatty():
+    if not as_json and not getattr(args, "no_open", False) and sys.stdin.isatty():
         try:
             import os
             import platform
@@ -83,13 +107,14 @@ def cmd_run(args):
         except Exception:
             pass
 
+    publish_results = None
     if getattr(args, "publish", False):
         mode = "DRY RUN" if config.DRY_RUN else "LIVE (posts for real)"
         platforms = [p.strip() for p in args.platforms.split(",")] if args.platforms else None
         target_str = f"to {args.platforms}" if args.platforms else "to all platforms"
 
         if not args.yes:
-            if not sys.stdin.isatty():
+            if not sys.stdin.isatty() or as_json:
                 raise SystemExit(
                     "Error: Non-interactive session detected. Live publishing requires explicit '--yes' / '-y' flag."
                 )
@@ -99,18 +124,42 @@ def cmd_run(args):
                     print("Publishing cancelled. Draft saved.")
                     return
 
-        print(f"\nDispatching draft #{draft_id} {target_str} in {mode} mode...")
-        print(pipeline.format_audit(pipeline.dispatch(draft_id, target_platforms=platforms, media_path=media)))
-    else:
+        if not as_json:
+            print(f"\nDispatching draft #{draft_id} {target_str} in {mode} mode...")
+        publish_results = pipeline.dispatch(draft_id, target_platforms=platforms, media_path=media)
+        if not as_json:
+            print(pipeline.format_audit(publish_results))
+    elif not as_json:
         print(f"\nTo post it: larpflow send {draft_id} --yes (or: python -m core.cli send {draft_id})")
+
+    if as_json:
+        out = {
+            "draft_id": draft_id,
+            "repo": info["full_name"],
+            "repo_info": info,
+            "drafts": d.model_dump(),
+            "problem": problem,
+            "solution": solution,
+            "file": str(draft_file),
+        }
+        if publish_results is not None:
+            out["audit"] = publish_results
+        print(json.dumps(out))
 
 
 
 
 def cmd_show(args):
     row = db.get_draft(args.draft_id)
+    as_json = getattr(args, "json", False)
     if row is None:
+        if as_json:
+            print(json.dumps({"error": f"No draft #{args.draft_id}"}))
+            return
         raise SystemExit(f"No draft #{args.draft_id}")
+    if as_json:
+        print(json.dumps(row))
+        return
     d = drafts.Drafts(**row["drafts"])
     print(drafts.render_preview(args.draft_id, row["repo"], d))
 
@@ -123,7 +172,11 @@ def cmd_repos(_args):
 
 def cmd_send(args):
     row = db.get_draft(args.draft_id)
+    as_json = getattr(args, "json", False)
     if row is None:
+        if as_json:
+            print(json.dumps({"error": f"No draft #{args.draft_id}"}))
+            return
         raise SystemExit(f"No draft #{args.draft_id}")
     mode = "DRY RUN" if config.DRY_RUN else "LIVE (posts for real)"
     platforms = [p.strip() for p in args.platforms.split(",")] if args.platforms else None
@@ -131,7 +184,7 @@ def cmd_send(args):
     media = args.image or ""
 
     if not args.yes:
-        if not sys.stdin.isatty():
+        if not sys.stdin.isatty() or as_json:
             raise SystemExit(
                 "Error: Non-interactive session detected. Sending drafts requires explicit '--yes' / '-y' flag."
             )
@@ -140,12 +193,21 @@ def cmd_send(args):
             if answer.strip().lower() != "yes":
                 raise SystemExit("Cancelled.")
 
-    print(f"Sending draft #{args.draft_id} {target_str} in {mode} mode...")
-    print(pipeline.format_audit(pipeline.dispatch(args.draft_id, target_platforms=platforms, media_path=media)))
+    if not as_json:
+        print(f"Sending draft #{args.draft_id} {target_str} in {mode} mode...")
+    results = pipeline.dispatch(args.draft_id, target_platforms=platforms, media_path=media)
+    if as_json:
+        print(json.dumps({"draft_id": args.draft_id, "results": results}))
+    else:
+        print(pipeline.format_audit(results))
 
 
-def cmd_history(_args):
-    rows = db.recent_history(15)
+def cmd_history(args):
+    limit = getattr(args, "limit", 15) or 15
+    rows = db.recent_history(limit)
+    if getattr(args, "json", False):
+        print(json.dumps(rows))
+        return
     if not rows:
         print("No history yet.")
     for r in rows:
@@ -161,7 +223,11 @@ def cmd_readme(_args):
 def main():
     parser = argparse.ArgumentParser(prog="larpflow")
     sub = parser.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("doctor", help="show which keys are filled in").set_defaults(fn=cmd_doctor)
+
+    doctor = sub.add_parser("doctor", help="show which keys are filled in")
+    doctor.add_argument("--json", action="store_true", help="output as JSON")
+    doctor.set_defaults(fn=cmd_doctor)
+
     sub.add_parser("repos", help="list your GitHub repos").set_defaults(fn=cmd_repos)
 
     run = sub.add_parser("run", help="make drafts for a repo")
@@ -181,12 +247,12 @@ def main():
     run.add_argument("--platforms", "-p", default="", help="target platforms for publishing (e.g. 'linkedin,discord')")
     run.add_argument("--yes", "-y", action="store_true", help="skip confirmation prompt when publishing")
     run.add_argument("--no-open", action="store_true", help="do not auto-open the draft in editor")
+    run.add_argument("--json", action="store_true", help="output as JSON")
     run.set_defaults(fn=cmd_run)
-
-
 
     show = sub.add_parser("show", help="preview an existing draft by id")
     show.add_argument("draft_id", type=int)
+    show.add_argument("--json", action="store_true", help="output as JSON")
     show.set_defaults(fn=cmd_show)
 
     send = sub.add_parser("send", help="post a saved draft")
@@ -194,10 +260,14 @@ def main():
     send.add_argument("--platforms", "-p", help="comma-separated list: x,linkedin,facebook,reddit,discord,github", default="")
     send.add_argument("--image", "-i", default="", help="custom image path for media attachments (overrides auto-detection)")
     send.add_argument("--yes", "-y", action="store_true", help="skip confirmation prompt")
+    send.add_argument("--json", action="store_true", help="output as JSON")
     send.set_defaults(fn=cmd_send)
 
+    history = sub.add_parser("history", help="show past drafts")
+    history.add_argument("--limit", "-n", type=int, default=15, help="number of past drafts to show")
+    history.add_argument("--json", action="store_true", help="output as JSON")
+    history.set_defaults(fn=cmd_history)
 
-    sub.add_parser("history", help="show past drafts").set_defaults(fn=cmd_history)
     sub.add_parser("readme", help="make a new GitHub profile README").set_defaults(fn=cmd_readme)
     args = parser.parse_args()
     args.fn(args)

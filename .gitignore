@@ -40,3 +40,9 @@ graphify-out/
 .DS_Store
 *.swp
 
+# Rust / Cargo Build Artifacts
+target/
+gui/target/
+*.rs.bk
+
+

@@ -1,0 +1,22 @@
+[package]
+name = "larpflow-gui"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance native Rust desktop GUI for LarpFlow developer log generator"
+authors = ["LarpFlow Contributors"]
+license = "MIT"
+
+[dependencies]
+eframe = { version = "0.30", default-features = false, features = [
+    "default_fonts",
+    "glow",
+    "persistence",
+] }
+egui = "0.30"
+egui_extras = { version = "0.30", features = ["all_loaders", "image"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rusqlite = { version = "0.32", features = ["bundled"] }
+rfd = "0.15"
+chrono = { version = "0.4", features = ["serde"] }
