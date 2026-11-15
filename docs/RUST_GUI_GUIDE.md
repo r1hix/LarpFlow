@@ -133,3 +133,4 @@ EOF
 | `Doctor command failed: ModuleNotFoundError: No module named 'openai'` | Python path points to system Python instead of venv. | Run `python3 -m venv venv && pip install -e .` in project root. The GUI automatically detects `venv/bin/python`. |
 | Black screen or OpenGL crash on Linux | Missing OpenGL/Wayland development libraries. | Install `libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev` on Debian/Ubuntu. |
 | macOS Gatekeeper prompt | Standalone unsigned binary. | In Terminal, run `xattr -d com.apple.quarantine gui/target/release/larpflow-gui`. |
+

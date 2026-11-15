@@ -180,3 +180,4 @@ gui/
 2. **Safe Defaults:** If `DRY_RUN=true` is set in `.env`, the GUI shows a prominent amber badge and performs full simulation runs without publishing.
 3. **No Credential Exposure:** Secrets and tokens in `.env` are never logged, echoed, or displayed in plaintext in the UI; only configuration status booleans (`CONFIGURED` / `MISSING`) are rendered.
 4. **Offline Local Git Ingestion:** Local repositories are inspected strictly via git subprocess or pygit without sending codebase files over the network.
+

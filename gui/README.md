@@ -60,3 +60,4 @@ cargo build --release
 ```
 
 Binary is saved at `gui/target/release/larpflow-gui`.
+

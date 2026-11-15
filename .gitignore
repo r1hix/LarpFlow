@@ -44,5 +44,7 @@ graphify-out/
 target/
 gui/target/
 *.rs.bk
+release-artifacts/
+
 
 
